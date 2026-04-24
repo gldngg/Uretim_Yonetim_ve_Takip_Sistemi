@@ -1,9 +1,14 @@
 package üys;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -18,12 +23,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import database.Veritabani;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class MakineGirisEkrani extends JFrame {
-	
-	
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -55,11 +60,14 @@ public class MakineGirisEkrani extends JFrame {
 		});
 	}
 
-	public  MakineGirisEkrani() {
-		setResizable(false);
+	public MakineGirisEkrani() {
 		setTitle("Makine Girişi");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1100, 700);
+		setSize(1100, 760);
+		setLocationRelativeTo(null);
+		setResizable(false);
+		setMinimumSize(getSize());
+		setMaximumSize(getSize());
 
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(142, 155, 213));
@@ -67,17 +75,15 @@ public class MakineGirisEkrani extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-
 		JPanel panelUstMenu = new JPanel();
 		panelUstMenu.setBounds(20, 20, 1040, 70);
 		panelUstMenu.setBackground(new Color(63, 81, 181));
 		panelUstMenu.setLayout(null);
 		contentPane.add(panelUstMenu);
-		
+
 		JLabel jlb_logo = new JLabel("LOGO");
 		jlb_logo.setBounds(10, 18, 40, 28);
 		panelUstMenu.add(jlb_logo);
-		jlb_logo.setBackground(new Color(255, 255, 255));
 
 		JLabel lblBaslik = new JLabel("MAKİNE GİRİŞİ");
 		lblBaslik.setBounds(50, 18, 200, 30);
@@ -86,10 +92,6 @@ public class MakineGirisEkrani extends JFrame {
 		panelUstMenu.add(lblBaslik);
 
 		JButton btnAnaSayfa = new JButton("Ana Sayfa");
-		btnAnaSayfa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		btnAnaSayfa.setContentAreaFilled(false);
 		btnAnaSayfa.setBorderPainted(false);
 		btnAnaSayfa.setFocusPainted(false);
@@ -99,6 +101,10 @@ public class MakineGirisEkrani extends JFrame {
 		panelUstMenu.add(btnAnaSayfa);
 
 		JButton btnDurusKayip = new JButton("Duruş/Kayıp");
+		btnDurusKayip.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnDurusKayip.setContentAreaFilled(false);
 		btnDurusKayip.setBorderPainted(false);
 		btnDurusKayip.setFocusPainted(false);
@@ -106,6 +112,11 @@ public class MakineGirisEkrani extends JFrame {
 		btnDurusKayip.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnDurusKayip.setBounds(360, 20, 120, 25);
 		panelUstMenu.add(btnDurusKayip);
+		btnDurusKayip.addActionListener(e -> {
+		    new DuruşKayıp().setVisible(true);
+		    dispose();
+		});
+		
 
 		JButton btnSiparis = new JButton("Sipariş");
 		btnSiparis.setContentAreaFilled(false);
@@ -146,7 +157,6 @@ public class MakineGirisEkrani extends JFrame {
 		btnCikis.setBounds(950, 18, 70, 30);
 		panelUstMenu.add(btnCikis);
 
-	
 		JPanel panelForm = new JPanel();
 		panelForm.setBounds(20, 100, 1040, 320);
 		panelForm.setBackground(Color.WHITE);
@@ -211,7 +221,6 @@ public class MakineGirisEkrani extends JFrame {
 		txtKapasite = new JTextField();
 		txtKapasite.setBounds(735, 100, 270, 30);
 		panelForm.add(txtKapasite);
-		txtKapasite.setColumns(10);
 
 		JLabel lblBolum = new JLabel("Bölüm:");
 		lblBolum.setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -271,7 +280,6 @@ public class MakineGirisEkrani extends JFrame {
 		txtBakimPeriyodu = new JTextField();
 		txtBakimPeriyodu.setBounds(25, 250, 270, 30);
 		panelForm.add(txtBakimPeriyodu);
-		txtBakimPeriyodu.setColumns(10);
 
 		btnKaydet = new JButton("Kaydet");
 		btnKaydet.setBounds(410, 250, 120, 35);
@@ -295,7 +303,6 @@ public class MakineGirisEkrani extends JFrame {
 		btnTemizle.setOpaque(true);
 		panelForm.add(btnTemizle);
 
-	
 		JPanel panelTablo = new JPanel();
 		panelTablo.setBounds(20, 440, 1040, 190);
 		panelTablo.setBackground(Color.WHITE);
@@ -328,66 +335,15 @@ public class MakineGirisEkrani extends JFrame {
 		table.setModel(model);
 		scrollPane.setViewportView(table);
 
-
-		btnKaydet.addActionListener(e -> {
-			String makineTipi = cmbMakineTipi.getSelectedItem().toString();
-			String makineKodu = cmbMakineKodu.getSelectedItem().toString();
-			String bolum = cmbBolum.getSelectedItem().toString();
-			String durum = cmbDurum.getSelectedItem().toString();
-			String lokasyon = cmbLokasyon.getSelectedItem().toString();
-			String calismaKapasitesi = txtKapasite.getText().trim();
-			String bakimPeriyodu = txtBakimPeriyodu.getText().trim();
-
-			if (calismaKapasitesi.isEmpty() || bakimPeriyodu.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "Lütfen boş alan bırakmayın.");
-				return;
-			}
-
-			if (!duzenlemeModu) {
-				if (makineKoduVarMi(makineKodu)) {
-					JOptionPane.showMessageDialog(null, "Bu makine kodu zaten kayıtlı.");
-					return;
-				}
-
-				model.addRow(new Object[] {
-						makineTipi,
-						makineKodu,
-						bolum,
-						calismaKapasitesi,
-						durum,
-						bakimPeriyodu,
-						lokasyon,
-						"Düzenle"
-				});
-			} else {
-				for (int i = 0; i < model.getRowCount(); i++) {
-					if (i != secilenSatir && model.getValueAt(i, 1).toString().equals(makineKodu)) {
-						JOptionPane.showMessageDialog(null, "Bu makine kodu zaten kayıtlı.");
-						return;
-					}
-				}
-
-				model.setValueAt(makineTipi, secilenSatir, 0);
-				model.setValueAt(makineKodu, secilenSatir, 1);
-				model.setValueAt(bolum, secilenSatir, 2);
-				model.setValueAt(calismaKapasitesi, secilenSatir, 3);
-				model.setValueAt(durum, secilenSatir, 4);
-				model.setValueAt(bakimPeriyodu, secilenSatir, 5);
-				model.setValueAt(lokasyon, secilenSatir, 6);
-				model.setValueAt("Düzenle", secilenSatir, 7);
-			}
-
-			formTemizle();
-		});
-
+		btnKaydet.addActionListener(e -> kaydetVeyaGuncelle());
 
 		btnTemizle.addActionListener(e -> {
 			if (duzenlemeModu && secilenSatir != -1) {
-				model.removeRow(secilenSatir);
+				sil();
+			} else {
+				formTemizle();
 			}
-			formTemizle();
 		});
-
 
 		table.addMouseListener(new MouseAdapter() {
 			@Override
@@ -412,15 +368,141 @@ public class MakineGirisEkrani extends JFrame {
 				}
 			}
 		});
+
+		makineleriYukle();
 	}
 
-	private boolean makineKoduVarMi(String makineKodu) {
-		for (int i = 0; i < model.getRowCount(); i++) {
-			if (model.getValueAt(i, 1).toString().equals(makineKodu)) {
-				return true;
+	private void kaydetVeyaGuncelle() {
+		String makineTipi = cmbMakineTipi.getSelectedItem().toString();
+		String makineKodu = cmbMakineKodu.getSelectedItem().toString();
+		String bolum = cmbBolum.getSelectedItem().toString();
+		String durum = cmbDurum.getSelectedItem().toString();
+		String lokasyon = cmbLokasyon.getSelectedItem().toString();
+		String calismaKapasitesi = txtKapasite.getText().trim();
+		String bakimPeriyodu = txtBakimPeriyodu.getText().trim();
+
+		if (calismaKapasitesi.isEmpty() || bakimPeriyodu.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Lütfen boş alan bırakmayın.");
+			return;
+		}
+
+		if (!duzenlemeModu) {
+			String sql = "INSERT INTO machines(makine_tipi, makine_kodu, bolum, kapasite, durum, bakim_periyodu, lokasyon) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+			try {
+				Connection conn = Veritabani.getInstance().getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+
+				pstmt.setString(1, makineTipi);
+				pstmt.setString(2, makineKodu);
+				pstmt.setString(3, bolum);
+				pstmt.setString(4, calismaKapasitesi);
+				pstmt.setString(5, durum);
+				pstmt.setString(6, bakimPeriyodu);
+				pstmt.setString(7, lokasyon);
+
+				pstmt.executeUpdate();
+
+				JOptionPane.showMessageDialog(null, "Makine kaydedildi.");
+				makineleriYukle();
+				formTemizle();
+
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(null, "Bu makine kodu zaten kayıtlı.");
+			}
+
+		} else {
+			String eskiMakineKodu = model.getValueAt(secilenSatir, 1).toString();
+
+			String sql = "UPDATE machines SET makine_tipi = ?, makine_kodu = ?, bolum = ?, kapasite = ?, durum = ?, bakim_periyodu = ?, lokasyon = ? "
+					+ "WHERE makine_kodu = ?";
+
+			try {
+				Connection conn = Veritabani.getInstance().getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+
+				pstmt.setString(1, makineTipi);
+				pstmt.setString(2, makineKodu);
+				pstmt.setString(3, bolum);
+				pstmt.setString(4, calismaKapasitesi);
+				pstmt.setString(5, durum);
+				pstmt.setString(6, bakimPeriyodu);
+				pstmt.setString(7, lokasyon);
+				pstmt.setString(8, eskiMakineKodu);
+
+				pstmt.executeUpdate();
+
+				JOptionPane.showMessageDialog(null, "Makine güncellendi.");
+				makineleriYukle();
+				formTemizle();
+
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(null, "Güncelleme hatası. Makine kodu zaten kayıtlı olabilir.");
 			}
 		}
-		return false;
+	}
+
+	private void makineleriYukle() {
+		model.setRowCount(0);
+
+		String sql = "SELECT * FROM machines";
+
+		try {
+			Connection conn = Veritabani.getInstance().getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				model.addRow(new Object[] {
+						rs.getString("makine_tipi"),
+						rs.getString("makine_kodu"),
+						rs.getString("bolum"),
+						rs.getString("kapasite"),
+						rs.getString("durum"),
+						rs.getString("bakim_periyodu"),
+						rs.getString("lokasyon"),
+						"Düzenle"
+				});
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sil() {
+		if (secilenSatir == -1) {
+			return;
+		}
+
+		String makineKodu = model.getValueAt(secilenSatir, 1).toString();
+
+		int cevap = JOptionPane.showConfirmDialog(
+				null,
+				"Bu makine kaydı silinsin mi?",
+				"Silme Onayı",
+				JOptionPane.YES_NO_OPTION
+		);
+
+		if (cevap == JOptionPane.YES_OPTION) {
+			String sql = "DELETE FROM machines WHERE makine_kodu = ?";
+
+			try {
+				Connection conn = Veritabani.getInstance().getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+
+				pstmt.setString(1, makineKodu);
+				pstmt.executeUpdate();
+
+				JOptionPane.showMessageDialog(null, "Makine silindi.");
+				makineleriYukle();
+				formTemizle();
+
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(null, "Silme işlemi sırasında hata oluştu.");
+			}
+		}
 	}
 
 	private void formTemizle() {
