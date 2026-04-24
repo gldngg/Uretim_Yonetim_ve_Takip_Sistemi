@@ -16,6 +16,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import database.Veritabani; 
+
 public class GirisEkrani extends JFrame {
 	
 	private JPanel contentPane;
@@ -27,26 +29,27 @@ public class GirisEkrani extends JFrame {
 	private JLabel lblMessage;
 
 	public static void main(String[] args) {
-		
 		GirisEkrani frame = new GirisEkrani();
 		frame.setVisible(true);
 	}
 	
 	public GirisEkrani() {
-		
-		setSize(1100,700);
-		setResizable(false);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("ÜRETİM YÖNETİM SİSTEMİ(ÜYS)");
-		
-				
-		contentPane = new JPanel();
-		contentPane.setLayout(null);
-		contentPane.setBackground(new Color(142,155,213));
-		setContentPane(contentPane);
-		
-		
+	    
+	    setTitle("ÜRETİM YÖNETİM SİSTEMİ(ÜYS)");
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	    setSize(1100,760);
+	    setLocationRelativeTo(null);
+
+	   
+	    setResizable(false);
+	    setMinimumSize(getSize());
+	    setMaximumSize(getSize());
+
+	    contentPane = new JPanel();
+	    contentPane.setLayout(null);
+	    contentPane.setBackground(new Color(142,155,213));
+	    setContentPane(contentPane);
 		
 		JPanel headerPanel = new JPanel();
 		headerPanel.setLayout(null);
@@ -121,7 +124,6 @@ public class GirisEkrani extends JFrame {
 		btnClear.setForeground(Color.WHITE);
 		loginPanel.add(btnClear);
 		
-		
 		JLabel messagebox = new JLabel("Durum Mesajı:");
 		messagebox.setBounds(100, 270, 200, 35);
 		messagebox.setFont(new Font("Tahoma", Font.BOLD, 20));
@@ -144,6 +146,7 @@ public class GirisEkrani extends JFrame {
 		btnRegister.setForeground(Color.WHITE);
 		loginPanel.add(btnRegister);
 		
+		// 🔥 GİRİŞ BUTONU
 		btnLogin.addActionListener(e -> {
 			String username = textfUserName.getText();
 			String password = new String(pfPassword.getPassword());
@@ -160,21 +163,26 @@ public class GirisEkrani extends JFrame {
 				role = "Operator";
 			}
 			
-					
+			// 🔥 rol seçilmezse
+			if(role == null) {
+				lblMessage.setText("Rol seçiniz!");
+				return;
+			}
 			
-			String sql = "SELECT * FROM user WHERE username = ? "
-					+ "AND password = ? "
-					+ "AND role = ?";
+			String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND role = ?";
 			
-			try(PreparedStatement pstmt =
-				veriTabani.getInstance().getConnection().prepareStatement(sql)){
-				password = veriTabani.getInstance().hashPassword(password);
-				username = veriTabani.encrypt(username);
+			try (PreparedStatement pstmt =
+					Veritabani.getInstance().getConnection().prepareStatement(sql)) {
+				
+				password = Veritabani.getInstance().hashPassword(password);
+				username = Veritabani.sifrele(username);
+				
 				pstmt.setString(1, username);
 				pstmt.setString(2, password);
 				pstmt.setString(3, role);
 				
 				ResultSet rs = pstmt.executeQuery();
+				
 				if(rs.next()) {
 					lblMessage.setText("Giriş başarılı!");
 				} else {
@@ -199,6 +207,5 @@ public class GirisEkrani extends JFrame {
 			kayit.setVisible(true);
 			this.dispose();
 		});
-		
 	}
 }
