@@ -149,17 +149,14 @@ public class DuruşKayıp extends JFrame {
 		panelUstMenu.add(lblKullanici);
 
 		JButton btnCikis = new JButton("ÇIKIŞ");
-		btnCikis.setForeground(Color.BLACK);
-		btnCikis.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnCikis.setBounds(950, 18, 70, 30);
 		panelUstMenu.add(btnCikis);
 
 		btnCikis.addActionListener(e -> {
-			Session.aktifKullanici = "";
-			new GirisEkrani().setVisible(true);
-			dispose();
+		    Session.aktifKullanici = "";   
+		    new GirisEkrani().setVisible(true); 
+		    dispose(); 
 		});
-
 		JPanel panelForm = new JPanel();
 		panelForm.setBounds(20, 100, 1040, 320);
 		panelForm.setBackground(Color.WHITE);
