@@ -146,15 +146,13 @@ public class MakineGirisEkrani extends JFrame {
 		panelUstMenu.add(lblKullanici);
 
 		JButton btnCikis = new JButton("ÇIKIŞ");
-		btnCikis.setForeground(Color.BLACK);
-		btnCikis.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnCikis.setBounds(950, 18, 70, 30);
 		panelUstMenu.add(btnCikis);
 
 		btnCikis.addActionListener(e -> {
-			Session.aktifKullanici = "";
-			new GirisEkrani().setVisible(true);
-			dispose();
+		    Session.aktifKullanici = "";   
+		    new GirisEkrani().setVisible(true); 
+		    dispose(); 
 		});
 
 		JPanel panelForm = new JPanel();
