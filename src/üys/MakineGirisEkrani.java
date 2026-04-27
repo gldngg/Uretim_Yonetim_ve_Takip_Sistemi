@@ -24,16 +24,18 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import database.Veritabani;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import database.Session;
+import database.veriTabani;
 
 public class MakineGirisEkrani extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+
+	private JTextField txtMakineKodu;
 	private JTextField txtKapasite;
 	private JTextField txtBakimPeriyodu;
+
 	private JTable table;
 	private DefaultTableModel model;
 
@@ -41,9 +43,7 @@ public class MakineGirisEkrani extends JFrame {
 	private boolean duzenlemeModu = false;
 
 	private JComboBox<String> cmbMakineTipi;
-	private JComboBox<String> cmbMakineKodu;
 	private JComboBox<String> cmbBolum;
-	private JComboBox<String> cmbDurum;
 	private JComboBox<String> cmbLokasyon;
 
 	private JButton btnKaydet;
@@ -66,8 +66,6 @@ public class MakineGirisEkrani extends JFrame {
 		setSize(1100, 760);
 		setLocationRelativeTo(null);
 		setResizable(false);
-		setMinimumSize(getSize());
-		setMaximumSize(getSize());
 
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(142, 155, 213));
@@ -101,10 +99,6 @@ public class MakineGirisEkrani extends JFrame {
 		panelUstMenu.add(btnAnaSayfa);
 
 		JButton btnDurusKayip = new JButton("Duruş/Kayıp");
-		btnDurusKayip.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		btnDurusKayip.setContentAreaFilled(false);
 		btnDurusKayip.setBorderPainted(false);
 		btnDurusKayip.setFocusPainted(false);
@@ -112,11 +106,11 @@ public class MakineGirisEkrani extends JFrame {
 		btnDurusKayip.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnDurusKayip.setBounds(360, 20, 120, 25);
 		panelUstMenu.add(btnDurusKayip);
+
 		btnDurusKayip.addActionListener(e -> {
-		    new DuruşKayıp().setVisible(true);
-		    dispose();
+			new DuruşKayıp().setVisible(true);
+			dispose();
 		});
-		
 
 		JButton btnSiparis = new JButton("Sipariş");
 		btnSiparis.setContentAreaFilled(false);
@@ -145,10 +139,10 @@ public class MakineGirisEkrani extends JFrame {
 		btnRapor.setBounds(700, 20, 80, 25);
 		panelUstMenu.add(btnRapor);
 
-		JLabel lblKullanici = new JLabel("Ad Soyad");
+		JLabel lblKullanici = new JLabel(Session.aktifKullanici);
 		lblKullanici.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblKullanici.setForeground(Color.WHITE);
-		lblKullanici.setBounds(860, 24, 90, 20);
+		lblKullanici.setBounds(830, 24, 130, 20);
 		panelUstMenu.add(lblKullanici);
 
 		JButton btnCikis = new JButton("ÇIKIŞ");
@@ -156,6 +150,12 @@ public class MakineGirisEkrani extends JFrame {
 		btnCikis.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnCikis.setBounds(950, 18, 70, 30);
 		panelUstMenu.add(btnCikis);
+
+		btnCikis.addActionListener(e -> {
+			Session.aktifKullanici = "";
+			new GirisEkrani().setVisible(true);
+			dispose();
+		});
 
 		JPanel panelForm = new JPanel();
 		panelForm.setBounds(20, 100, 1040, 320);
@@ -184,16 +184,6 @@ public class MakineGirisEkrani extends JFrame {
 		lblMakineTipi.setBounds(25, 75, 120, 20);
 		panelForm.add(lblMakineTipi);
 
-		JLabel lblMakineKodu = new JLabel("Makine Kodu:");
-		lblMakineKodu.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblMakineKodu.setBounds(380, 75, 120, 20);
-		panelForm.add(lblMakineKodu);
-
-		JLabel lblKapasite = new JLabel("Çalışma Kapasitesi:");
-		lblKapasite.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblKapasite.setBounds(735, 75, 150, 20);
-		panelForm.add(lblKapasite);
-
 		cmbMakineTipi = new JComboBox<>();
 		cmbMakineTipi.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		cmbMakineTipi.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -206,17 +196,19 @@ public class MakineGirisEkrani extends JFrame {
 		cmbMakineTipi.setBounds(25, 100, 270, 30);
 		panelForm.add(cmbMakineTipi);
 
-		cmbMakineKodu = new JComboBox<>();
-		cmbMakineKodu.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		cmbMakineKodu.setModel(new DefaultComboBoxModel<>(new String[] {
-				"KRS-01",
-				"DLM-01",
-				"KPK-01",
-				"ETK-01",
-				"PKT-01"
-		}));
-		cmbMakineKodu.setBounds(380, 100, 270, 30);
-		panelForm.add(cmbMakineKodu);
+		JLabel lblMakineKodu = new JLabel("Makine Kodu:");
+		lblMakineKodu.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblMakineKodu.setBounds(380, 75, 120, 20);
+		panelForm.add(lblMakineKodu);
+
+		txtMakineKodu = new JTextField();
+		txtMakineKodu.setBounds(380, 100, 270, 30);
+		panelForm.add(txtMakineKodu);
+
+		JLabel lblKapasite = new JLabel("Çalışma Kapasitesi:");
+		lblKapasite.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblKapasite.setBounds(735, 75, 150, 20);
+		panelForm.add(lblKapasite);
 
 		txtKapasite = new JTextField();
 		txtKapasite.setBounds(735, 100, 270, 30);
@@ -241,25 +233,9 @@ public class MakineGirisEkrani extends JFrame {
 		cmbBolum.setBounds(25, 175, 270, 30);
 		panelForm.add(cmbBolum);
 
-		JLabel lblDurum = new JLabel("Durum:");
-		lblDurum.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblDurum.setBounds(380, 150, 120, 20);
-		panelForm.add(lblDurum);
-
-		cmbDurum = new JComboBox<>();
-		cmbDurum.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		cmbDurum.setModel(new DefaultComboBoxModel<>(new String[] {
-				"Aktif",
-				"Bakımda",
-				"Arızalı",
-				"Pasif"
-		}));
-		cmbDurum.setBounds(380, 175, 270, 30);
-		panelForm.add(cmbDurum);
-
 		JLabel lblLokasyon = new JLabel("Lokasyon:");
 		lblLokasyon.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblLokasyon.setBounds(735, 150, 120, 20);
+		lblLokasyon.setBounds(380, 150, 120, 20);
 		panelForm.add(lblLokasyon);
 
 		cmbLokasyon = new JComboBox<>();
@@ -269,16 +245,16 @@ public class MakineGirisEkrani extends JFrame {
 				"Hat 2",
 				"Hat 3"
 		}));
-		cmbLokasyon.setBounds(735, 175, 270, 30);
+		cmbLokasyon.setBounds(380, 175, 270, 30);
 		panelForm.add(cmbLokasyon);
 
 		JLabel lblBakimPeriyodu = new JLabel("Bakım Periyodu:");
 		lblBakimPeriyodu.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblBakimPeriyodu.setBounds(25, 225, 150, 20);
+		lblBakimPeriyodu.setBounds(735, 150, 150, 20);
 		panelForm.add(lblBakimPeriyodu);
 
 		txtBakimPeriyodu = new JTextField();
-		txtBakimPeriyodu.setBounds(25, 250, 270, 30);
+		txtBakimPeriyodu.setBounds(735, 175, 270, 30);
 		panelForm.add(txtBakimPeriyodu);
 
 		btnKaydet = new JButton("Kaydet");
@@ -326,7 +302,6 @@ public class MakineGirisEkrani extends JFrame {
 				"Makine Kodu",
 				"Bölüm",
 				"Çalışma Kapasitesi",
-				"Durum",
 				"Bakım Periyodu",
 				"Lokasyon",
 				"İşlem"
@@ -351,17 +326,16 @@ public class MakineGirisEkrani extends JFrame {
 				int satir = table.getSelectedRow();
 				int sutun = table.getSelectedColumn();
 
-				if (satir != -1 && sutun == 7) {
+				if (satir != -1 && sutun == 6) {
 					secilenSatir = satir;
 					duzenlemeModu = true;
 
 					cmbMakineTipi.setSelectedItem(model.getValueAt(satir, 0).toString());
-					cmbMakineKodu.setSelectedItem(model.getValueAt(satir, 1).toString());
+					txtMakineKodu.setText(model.getValueAt(satir, 1).toString());
 					cmbBolum.setSelectedItem(model.getValueAt(satir, 2).toString());
 					txtKapasite.setText(model.getValueAt(satir, 3).toString());
-					cmbDurum.setSelectedItem(model.getValueAt(satir, 4).toString());
-					txtBakimPeriyodu.setText(model.getValueAt(satir, 5).toString());
-					cmbLokasyon.setSelectedItem(model.getValueAt(satir, 6).toString());
+					txtBakimPeriyodu.setText(model.getValueAt(satir, 4).toString());
+					cmbLokasyon.setSelectedItem(model.getValueAt(satir, 5).toString());
 
 					btnKaydet.setText("Güncelle");
 					btnTemizle.setText("Sil");
@@ -374,33 +348,31 @@ public class MakineGirisEkrani extends JFrame {
 
 	private void kaydetVeyaGuncelle() {
 		String makineTipi = cmbMakineTipi.getSelectedItem().toString();
-		String makineKodu = cmbMakineKodu.getSelectedItem().toString();
+		String makineKodu = txtMakineKodu.getText().trim();
 		String bolum = cmbBolum.getSelectedItem().toString();
-		String durum = cmbDurum.getSelectedItem().toString();
-		String lokasyon = cmbLokasyon.getSelectedItem().toString();
-		String calismaKapasitesi = txtKapasite.getText().trim();
+		String kapasite = txtKapasite.getText().trim();
 		String bakimPeriyodu = txtBakimPeriyodu.getText().trim();
+		String lokasyon = cmbLokasyon.getSelectedItem().toString();
 
-		if (calismaKapasitesi.isEmpty() || bakimPeriyodu.isEmpty()) {
+		if (makineKodu.isEmpty() || kapasite.isEmpty() || bakimPeriyodu.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Lütfen boş alan bırakmayın.");
 			return;
 		}
 
 		if (!duzenlemeModu) {
-			String sql = "INSERT INTO machines(makine_tipi, makine_kodu, bolum, kapasite, durum, bakim_periyodu, lokasyon) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO machines(makine_tipi, makine_kodu, bolum, kapasite, bakim_periyodu, lokasyon) "
+					+ "VALUES (?, ?, ?, ?, ?, ?)";
 
 			try {
-				Connection conn = Veritabani.getInstance().getConnection();
+				Connection conn = veriTabani.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 
 				pstmt.setString(1, makineTipi);
 				pstmt.setString(2, makineKodu);
 				pstmt.setString(3, bolum);
-				pstmt.setString(4, calismaKapasitesi);
-				pstmt.setString(5, durum);
-				pstmt.setString(6, bakimPeriyodu);
-				pstmt.setString(7, lokasyon);
+				pstmt.setString(4, kapasite);
+				pstmt.setString(5, bakimPeriyodu);
+				pstmt.setString(6, lokasyon);
 
 				pstmt.executeUpdate();
 
@@ -409,27 +381,27 @@ public class MakineGirisEkrani extends JFrame {
 				formTemizle();
 
 			} catch (SQLException e) {
-				JOptionPane.showMessageDialog(null, "Bu makine kodu zaten kayıtlı.");
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Kayıt hatası: " + e.getMessage());
 			}
 
 		} else {
 			String eskiMakineKodu = model.getValueAt(secilenSatir, 1).toString();
 
-			String sql = "UPDATE machines SET makine_tipi = ?, makine_kodu = ?, bolum = ?, kapasite = ?, durum = ?, bakim_periyodu = ?, lokasyon = ? "
-					+ "WHERE makine_kodu = ?";
+			String sql = "UPDATE machines SET makine_tipi = ?, makine_kodu = ?, bolum = ?, kapasite = ?, "
+					+ "bakim_periyodu = ?, lokasyon = ? WHERE makine_kodu = ?";
 
 			try {
-				Connection conn = Veritabani.getInstance().getConnection();
+				Connection conn = veriTabani.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 
 				pstmt.setString(1, makineTipi);
 				pstmt.setString(2, makineKodu);
 				pstmt.setString(3, bolum);
-				pstmt.setString(4, calismaKapasitesi);
-				pstmt.setString(5, durum);
-				pstmt.setString(6, bakimPeriyodu);
-				pstmt.setString(7, lokasyon);
-				pstmt.setString(8, eskiMakineKodu);
+				pstmt.setString(4, kapasite);
+				pstmt.setString(5, bakimPeriyodu);
+				pstmt.setString(6, lokasyon);
+				pstmt.setString(7, eskiMakineKodu);
 
 				pstmt.executeUpdate();
 
@@ -438,7 +410,8 @@ public class MakineGirisEkrani extends JFrame {
 				formTemizle();
 
 			} catch (SQLException e) {
-				JOptionPane.showMessageDialog(null, "Güncelleme hatası. Makine kodu zaten kayıtlı olabilir.");
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Güncelleme hatası: " + e.getMessage());
 			}
 		}
 	}
@@ -449,7 +422,7 @@ public class MakineGirisEkrani extends JFrame {
 		String sql = "SELECT * FROM machines";
 
 		try {
-			Connection conn = Veritabani.getInstance().getConnection();
+			Connection conn = veriTabani.getInstance().getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 
@@ -459,7 +432,6 @@ public class MakineGirisEkrani extends JFrame {
 						rs.getString("makine_kodu"),
 						rs.getString("bolum"),
 						rs.getString("kapasite"),
-						rs.getString("durum"),
 						rs.getString("bakim_periyodu"),
 						rs.getString("lokasyon"),
 						"Düzenle"
@@ -489,7 +461,7 @@ public class MakineGirisEkrani extends JFrame {
 			String sql = "DELETE FROM machines WHERE makine_kodu = ?";
 
 			try {
-				Connection conn = Veritabani.getInstance().getConnection();
+				Connection conn = veriTabani.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 
 				pstmt.setString(1, makineKodu);
@@ -500,16 +472,16 @@ public class MakineGirisEkrani extends JFrame {
 				formTemizle();
 
 			} catch (SQLException e) {
-				JOptionPane.showMessageDialog(null, "Silme işlemi sırasında hata oluştu.");
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Silme hatası: " + e.getMessage());
 			}
 		}
 	}
 
 	private void formTemizle() {
 		cmbMakineTipi.setSelectedIndex(0);
-		cmbMakineKodu.setSelectedIndex(0);
+		txtMakineKodu.setText("");
 		cmbBolum.setSelectedIndex(0);
-		cmbDurum.setSelectedIndex(0);
 		cmbLokasyon.setSelectedIndex(0);
 
 		txtKapasite.setText("");
