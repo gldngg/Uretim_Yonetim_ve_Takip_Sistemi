@@ -79,6 +79,7 @@ public class GirisEkrani extends JFrame {
 
 		textfUserName = new JTextField();
 		textfUserName.setBounds(280, 30, 400, 35);
+		textfUserName.setFont(new Font("Tahoma", Font.BOLD, 20));
 		loginPanel.add(textfUserName);
 
 		JLabel lblPassword = new JLabel("Şifre:");
@@ -88,6 +89,7 @@ public class GirisEkrani extends JFrame {
 
 		pfPassword = new JPasswordField();
 		pfPassword.setBounds(280, 90, 400, 35);
+		pfPassword.setFont(new Font("Tahoma", Font.BOLD, 20));
 		loginPanel.add(pfPassword);
 
 		JLabel lblRole = new JLabel("Rol:");
