@@ -86,6 +86,24 @@ public class veriTabani {
 				+ " durus_nedeni TEXT NOT NULL, "
 				+ " aciklama TEXT NOT NULL "
 				+ ");";
+		
+		String siparisSql = "CREATE TABLE IF NOT EXISTS siparisler ("
+                   + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                   + " siparis_adi TEXT NOT NULL, "
+                   + " siparis_kodu TEXT NOT NULL UNIQUE, "
+                   + " musteri TEXT NOT NULL, "
+                   + " urun_adi TEXT NOT NULL, "
+                   + " miktar INTEGER DEFAULT 0, "
+                   + " termin_tarihi TEXT "
+                   + ");";
+		
+       String isEmriSql = "CREATE TABLE IF NOT EXISTS is_emirleri ("
+                   + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                   + " siparis_id INTEGER, "
+                   + " gorev TEXT, "
+                   + " makine TEXT, "
+                   + " FOREIGN KEY (siparis_id) REFERENCES siparisler(id) "
+                   + ");";
 
 		try (Statement stmt = connection.createStatement()) {
 			stmt.execute(usersSql);
